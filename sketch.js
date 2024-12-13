@@ -1,15 +1,15 @@
-let cols = 6; // Initial number of columns
-let rows = 5; // Initial number of rows
-let cellWidth, cellHeight; // Size of each cell, calculated dynamically
+let cols = 6; // starting number of column
+let rows = 5; // starting number of rows
+let cellWidth, cellHeight; // size of each square, height and width
 
-let clickCount = 0;
+let clickCount = 0; 
 let level = 0;
 let redCol, redRow;
-let whiteOpacityGrid = []; // Store the opacity of each white square
-let expanding = false; // Prevent multiple expansions while waiting
-let clickDisabled = false; // Disable clicks during timeout
+let whiteOpacityGrid = []; // store white layer into an array
+let expanding = false; // flag more to prevent multiple expanding 
+let clickDisabled = false; // flag more click during timeout
+let showRedOverlay = false; // flag to control red overlay display
 
-let showRedOverlay = false; // Flag to control red overlay display
 // Tone.js synthesizer
 let synth;
 
@@ -30,29 +30,27 @@ function draw() {
 
   // Check if the red square is visible
   if (checkForRed()) {
-    console.log("Red detected!");
+
     if (!expanding) {
-      showRedOverlay = true; // Enable the red overlay
-      expanding = true; // Prevent multiple triggers
-      clickDisabled = true; // Disable further clicks
+      showRedOverlay = true; // show red overlay
+      expanding = true; // prevent multiple expanding triggers
+      clickDisabled = true; // disable more clicks
       setTimeout(() => {
-        showRedOverlay = false; // Disable the red overlay
-        expandGrid(); // Expand the grid after 3 seconds
-        expanding = false; // Reset the flag
-        clickDisabled = false; // Re-enable clicks
+        //reset everything
+        showRedOverlay = false; 
+        expandGrid(); 
+        expanding = false; 
+        clickDisabled = false;
       }, 3000); // 3-second delay
     }
-  } else {
-    console.log("No red detected!");
   }
 
   // Draw the red overlay if the flag is true
   if (showRedOverlay) {
-
     setTimeout(() => {
-      fill(0, 100, 100, 50); // Semi-transparent red overlay (HSB color)
+      fill(0, 100, 100, 50); 
       noStroke();
-      rect(0, 0, width, height); // Cover the entire canvas
+      rect(0, 0, width, height);
       fill(200)
       textSize(40)
       text('yay',((width/2)-30),height/2)
@@ -64,36 +62,30 @@ function draw() {
 function levelCounter() {
   let totalSquare = cols * rows;
   textSize(30);
-  fill(0, 100, 50); // Red text in HSB
-  noStroke(); // Remove stroke around text
+  fill(0, 100, 50); 
+  noStroke(); 
   text(`Level ${level}`, 20, 45);
 }
 
 function clickCounter() {
   let totalSquare = cols * rows;
   textSize(20);
-  fill(0, 100, 50); // Red text in HSB
-  noStroke(); // Remove stroke around text
+  fill(0, 100, 50); 
+  noStroke(); 
   text(`You guessed ${clickCount}/${totalSquare} times`, 20, 80);
 }
 
 function createGrid() {
+  //nested for loop to make grid
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
-      if (
-        mouseX > i * cellWidth &&
-        mouseX < i * cellWidth + cellWidth &&
-        mouseY > j * cellHeight &&
-        mouseY < j * cellHeight + cellHeight
-      ) {
-        fill(240, 100, 100); // Blue square (HSB: hue 240 for blue)
-      }
       // Calculate the distance to the red square
       let distance = dist(i, j, redCol, redRow);
 
       // Map the distance to hue (closer = red, further = other hues)
       let hue = map(distance, 0, dist(0, 0, cols, rows), 0, 100); // Hue range from red (0) to other hues (100)
 
+      //random position for red square
       if (i === redCol && j === redRow) {
         fill(0, 100, 100); // Red square (max saturation, max brightness)
       } else {
@@ -103,8 +95,8 @@ function createGrid() {
       stroke(0, 100, 100);
       rect(i * cellWidth, j * cellHeight, cellWidth, cellHeight);
 
-      // Add an additional white square with varying opacity
-      fill(100, whiteOpacityGrid[i][j]); // White fill with opacity
+      // white layer over each colored grid
+      fill(100, whiteOpacityGrid[i][j]);
       stroke(0, 100, 50);
       rect(i * cellWidth, j * cellHeight, cellWidth, cellHeight);
     }
@@ -121,7 +113,7 @@ function initializeGrid() {
   for (let i = 0; i < cols; i++) {
     whiteOpacityGrid[i] = [];
     for (let j = 0; j < rows; j++) {
-      whiteOpacityGrid[i][j] = 255; // Fully opaque
+      whiteOpacityGrid[i][j] = 255;
     }
   }
 
@@ -145,15 +137,15 @@ function mouseClicked() {
   let clickedCol = floor(mouseX / cellWidth);
   let clickedRow = floor(mouseY / cellHeight);
 
-  // Ensure the click is within the grid bounds
+  //see which square is clicked
   if (clickedCol >= 0 && clickedCol < cols && clickedRow >= 0 && clickedRow < rows) {
-    // Set the opacity of the clicked white square to 0 (make it invisible)
+   //turn opacity from array to 0
     whiteOpacityGrid[clickedCol][clickedRow] = 0;
 
     // Calculate distance to the red square
     let distance = dist(clickedCol, clickedRow, redCol, redRow);
 
-    // Map distance to frequency (e.g., 200 Hz to 1000 Hz)
+    // Map distance to frequency
     let maxDistance = dist(0, 0, cols, rows);
     let frequency = map(distance, 0, maxDistance, 1000, 200);
 
@@ -164,16 +156,8 @@ function mouseClicked() {
   }
 }
 
-function checkForRed() {
-  // Check if the red square's corresponding white square is fully transparent
-  if (whiteOpacityGrid[redCol][redRow] === 0) {
-    return true; // The red square is visible
-  }
-  return false; // The red square is still covered
-}
-
 function expandGrid() {
-  // Increase rows and columns by 1
+  // add rows and column by 1
   cols += 1;
   rows += 1;
 
@@ -182,9 +166,17 @@ function expandGrid() {
   redraw(); // Redraw the canvas with the updated grid
 }
 
-function windowResized() {
-  // Adjust the canvas size dynamically when the window is resized
-  resizeCanvas(windowWidth, windowHeight);
-  initializeGrid(); // Reinitialize the grid to fit the new canvas size
-  redraw();
+function checkForRed() {
+  // Get the center coordinates of the red square
+  let centerX = redCol * cellWidth + cellWidth / 2;
+  let centerY = redRow * cellHeight + cellHeight / 2;
+
+  //use get to see if red is found
+  let colorAtCenter = get(centerX, centerY);
+
+  // Check if the color matches red
+  if (colorAtCenter[0] === 255 && colorAtCenter[1] === 0 && colorAtCenter[2] === 0) {
+    return true; //stop function execution
+  }
+  return false;
 }

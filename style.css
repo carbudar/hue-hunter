@@ -1,0 +1,53 @@
+body{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    color:rgb(129, 37, 37);
+}
+
+h1{
+    font-size: 60px;
+}
+
+h2{
+    font-size: 25px;
+}
+
+.title-overlay{
+    background-color: rgba(194, 43, 50,0.3);
+    width: 90vw;
+    height: 90vh;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.page-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    position: relative; /* Ensure it appears above the canvas */
+    z-index: 1;
+
+}
+
+.start-button{
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(96, 22, 22);
+    border-radius: 3px;
+    width: 10vw;
+    height: 5vh;
+    padding: 1%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10vh;
+}
+
+.start-button:hover{
+    background-color: rgb(91, 8, 8);
+    color: white;
+}
